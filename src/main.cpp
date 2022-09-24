@@ -12,34 +12,42 @@
 
 #include "Engine/window.hpp"
 
-#include "Math/transform.hpp"
+#include "Game/game.hpp"
+
+#include "Util/timer.hpp"
+#include "Util/color.hpp"
 
 int main(int argc, char** argv) {
     window_t window;
     window.width = 640;
     window.height = 480;
 
-    window.set_event_callback([](auto& event){});
-
     window.open_window();
-    window.set_title("AAGE Template");
-    
-    v3f color{1.0f, 0.0f, 0.0f};
-    transform_t transform;
 
-    while(!window.should_close()) {
-        color = glm::min(transform.xform(color), 1.0f);
-        transform.rotate({0.00004f, 0.00002f, 0.00001f});
+    window.set_title("Nuclear Meltdown");
 
-        glClearColor(color.r, color.g, color.b, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    try {
+        game_t game{window};
 
-        /////////////////////////////
-        window.poll_events();
-        window.swap_buffers();
+        timer32_t frame_timer;
+        v3f color{color::v3::gray};
+        
+        while(!window.should_close()) {
+            glClearColor(color.r, color.g, color.b, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            /////////////////////////////
+            game.update(frame_timer.get_dt(window.get_ticks()));
+
+            game.draw();
+
+            /////////////////////////////
+            window.poll_events();
+            window.swap_buffers();
+        }
+    } catch (std::exception& e) {
+        logger_t::warn(e.what());
     }
-
-    
 
     return 0;
 }
