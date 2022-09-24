@@ -57,14 +57,35 @@ struct map_t {
     }
 
     bool collide(const aabb_t<v2f>& aabb) const {
+        for (int x = 0; x < W; x++) {
+            for (int y = 0; y < H; y++) {
+                const tile_e tile = get_tile(x,y);
+                if (tile == tile_e::EMPTY || tile == tile_e::SIZE) continue;
 
+                aabb_t<v2f> tile_aabb;
+                tile_aabb.expand(v2f{x, y} * 16.0f);
+                tile_aabb.expand(v2f{x+1, y+1} * 16.0f);
+
+                // implement overlaps
+                if (tile_aabb.contains(aabb.min))
+                    return true;
+                if (tile_aabb.contains(aabb.max))
+                    return true;
+            }  
+        }
+        
+        return false;
     }
 
     map_t() {
         for (int x = 0; x < W; x++) {
             for (int y = 0; y < H; y++) {
                 const bool is_edge = x == 0 || y == 0 || x == (W-1) || y == (H-1);
-                tiles[get_index(x,y)] = is_edge ? tile_e::WALL : tile_e::EMPTY;
+
+                const auto i = get_index(x,y);
+
+                tiles[i] = y == 1 ? tile_e::TABLE : tile_e::EMPTY;
+                tiles[i] = is_edge ? tile_e::WALL : tiles[i];
             }
         }
     }

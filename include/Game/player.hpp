@@ -8,13 +8,9 @@
 #include "Engine/asset_loader.hpp"
 #include "Util/sprite.hpp"
 
-struct player_t {
-    v2f position{0.0f};
-    sprite_t sprite;
+#include "Game/entity.hpp"
 
-    void draw(batch2d_t& gfx, v2f camera_position, f32 zoom) const {
-        sprite.draw(gfx, position, camera_position, zoom);
-    }
+struct player_t : entity_t {
 
     player_t(asset_loader_t& loader) {
         sprite.texture = loader.get_texture2d("textures/player.png");
